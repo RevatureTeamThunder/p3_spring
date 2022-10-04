@@ -21,15 +21,5 @@ public class User {
     private String firstName;
     private String lastName;
     
-    
-    
-    public User() {
-		super();
-	}
 
-
-
-	public User(int i, String email2, String password2, String firstName2, String lastName2) {
-		// TODO Auto-generated constructor stub
-	}
 }
