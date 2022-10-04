@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 import com.revature.dtos.LoginRequest;
+
 import com.revature.dtos.RegisterRequest;
 import com.revature.models.User;
 import com.revature.services.AuthService;
