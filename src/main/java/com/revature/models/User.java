@@ -12,12 +12,24 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
-
-    @Id
+    
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String email;
     private String password;
     private String firstName;
     private String lastName;
+    
+    
+    
+    public User() {
+		super();
+	}
+
+
+
+	public User(int i, String email2, String password2, String firstName2, String lastName2) {
+		// TODO Auto-generated constructor stub
+	}
 }
