@@ -1,7 +1,6 @@
 package com.revature.controllers;
 
 import com.revature.dtos.LoginRequest;
-
 import com.revature.dtos.RegisterRequest;
 import com.revature.models.User;
 import com.revature.services.AuthService;
@@ -18,9 +17,12 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
+    
+    
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+      
     }
 
     @PostMapping("/login")
