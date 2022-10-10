@@ -16,8 +16,10 @@ public class ProductInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private int quantity;
+    
+    
 	public int getId() {
 		return id;
 	}

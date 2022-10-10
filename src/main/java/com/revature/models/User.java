@@ -10,16 +10,26 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "customer")
 public class User {
     
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer customerId;
     private String email;
     private String password;
     private String firstName;
     private String lastName;
+    private String role;
     
-
+	public User(int id, String email, String password, String firstName, String lastName) {
+		super();
+		this.customerId = id;
+		this.email = email;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+	}
+    
+    
 }

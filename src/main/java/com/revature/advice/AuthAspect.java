@@ -1,6 +1,7 @@
 package com.revature.advice;
 
 import com.revature.annotations.AuthRestriction;
+
 import com.revature.annotations.Authorized;
 import com.revature.exceptions.NotLoggedInException;
 import org.aspectj.lang.ProceedingJoinPoint;
