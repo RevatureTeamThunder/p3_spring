@@ -1,7 +1,7 @@
 package com.revature.services;
 
-import com.revature.models.User;
-import com.revature.repositories.UserRepository;
+import com.revature.models.Customer;
+import com.revature.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -9,17 +9,17 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserService(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
     }
 
-    public Optional<User> findByCredentials(String email, String password) {
-        return userRepository.findByEmailAndPassword(email, password);
+    public Optional<Customer> findByCredentials(String email, String password) {
+        return customerRepository.findByEmailAndPassword(email, password);
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
+    public Customer save(Customer customer) {
+        return customerRepository.save(customer);
     }
 }

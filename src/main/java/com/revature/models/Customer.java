@@ -11,7 +11,8 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "customer")
-public class User {
+public class Customer
+{
     
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +23,7 @@ public class User {
     private String lastName;
     private String role;
     
-	public User(int id, String email, String password, String firstName, String lastName) {
+	public Customer(int id, String email, String password, String firstName, String lastName) {
 		super();
 		this.customerId = id;
 		this.email = email;

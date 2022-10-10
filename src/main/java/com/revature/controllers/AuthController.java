@@ -1,10 +1,9 @@
 package com.revature.controllers;
 
 import com.revature.dtos.LoginRequest;
-import com.revature.dtos.RegisterRequest;
-import com.revature.models.User;
+import com.revature.models.Customer;
+import com.revature.repositories.CustomerRepository;
 import com.revature.services.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,17 +16,20 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
+
+    private final CustomerRepository customerRepository;
     
     
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, CustomerRepository customerRepository) {
         this.authService = authService;
-      
+
+        this.customerRepository = customerRepository;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
-        Optional<User> optional = authService.findByCredentials(loginRequest.getEmail(), loginRequest.getPassword());
+    public ResponseEntity<Customer> login(@RequestBody LoginRequest loginRequest, HttpSession session) {
+        Optional<Customer> optional = authService.findByCredentials(loginRequest.getEmail(), loginRequest.getPassword());
 
         if(!optional.isPresent()) {
             return ResponseEntity.badRequest().build();
@@ -46,6 +48,24 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    public ResponseEntity<?> register(
+            @RequestParam(name = "email", required = true) String email,
+            @RequestParam(name = "password", required = true) String password,
+            @RequestParam(name = "firstName", required = true) String firstName,
+            @RequestParam(name = "lastName", required = true) String lastName,
+            @RequestParam(name = "role", required = false) Optional<String> role
+    )
+    {
+        Customer customer = new Customer();
+        customer.setEmail(email);
+        customer.setPassword(password);
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setRole(role.orElse("User"));
+        return ResponseEntity.status(201).body(customerRepository.save(customer));
+    }
+
+    /*
     public ResponseEntity<User> register(@RequestBody RegisterRequest registerRequest) {
         User created = new User(0,
                 registerRequest.getEmail(),
@@ -56,5 +76,5 @@ public class AuthController {
         		
 
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(created));
-    }
+    } */
 }

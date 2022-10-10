@@ -1,9 +1,8 @@
 package com.revature.services;
 
-import com.revature.models.User;
+import com.revature.models.Customer;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.util.Optional;
 
 @Service
@@ -15,11 +14,11 @@ public class AuthService {
         this.userService = userService;
     }
 
-    public Optional<User> findByCredentials(String email, String password) {
+    public Optional<Customer> findByCredentials(String email, String password) {
         return userService.findByCredentials(email, password);
     }
 
-    public User register(User user) {
-        return userService.save(user);
+    public Customer register(Customer customer) {
+        return userService.save(customer);
     }
 }
