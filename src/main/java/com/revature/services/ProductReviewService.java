@@ -1,6 +1,7 @@
 package com.revature.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import com.revature.models.ProductReview;
@@ -15,8 +16,8 @@ public class ProductReviewService {
 		this.productReviewRepository = productReviewRepository;
 	}
 	
-	public List<ProductReview> viewAllReviews(){
-		return productReviewRepository.findAll();
+	public Optional<List<ProductReview>> viewAllReviews(int productId){
+		return productReviewRepository.findAllByProductId(productId);
 	}
 	
 }

@@ -19,10 +19,10 @@ public class OrderHistoryService {
 	}
 	
 	//View the order id, date, and total cost. 
-	public OrderHistory findById(Integer id) throws OrderHistoryNotFoundException {
-		Optional<OrderHistory> orderHistory = orderHistoryRepository.findById(id);
+	public Optional<List<OrderHistory>> findByCartId(Integer id) throws OrderHistoryNotFoundException {
+		Optional<List<OrderHistory>> orderHistory = orderHistoryRepository.findByCartId(id);
 		if(orderHistory.isPresent()) {
-		return orderHistory.get();
+		return orderHistory;
 		} else {
 			throw new OrderHistoryNotFoundException("Order History Not Found");
 		}
@@ -34,13 +34,16 @@ public class OrderHistoryService {
 	}
 	
 	//List all products, quantity, and cost of the order by customer id
-	public List<OrderHistory> viewAllOrderHistoryOfCustomer(Integer customerId){
+	public Optional<List<OrderHistory>> viewAllOrderHistoryOfCustomer(Integer customerId){
 		return orderHistoryRepository.findByCustomerId(customerId);
 	}
-	
+
+	/*
 	//Puts all items from the shopping cart into the order history.
 	public void saveToOrderHistory(Integer cartId, OrderHistory orderHistory) throws OrderHistoryNotFoundException {
 		OrderHistory orderHistoryNew = this.findById(cartId);
 		orderHistoryRepository.save(orderHistoryNew);
 	}
+
+	 */
 }

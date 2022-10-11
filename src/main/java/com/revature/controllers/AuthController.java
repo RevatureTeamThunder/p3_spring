@@ -1,9 +1,13 @@
 package com.revature.controllers;
 
+import com.revature.annotations.Authorized;
 import com.revature.dtos.LoginRequest;
+import com.revature.dtos.RegisterRequest;
+import com.revature.exceptions.CustomerNotFoundException;
 import com.revature.models.Customer;
 import com.revature.repositories.CustomerRepository;
 import com.revature.services.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,6 +51,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    /*
     @PostMapping("/register")
     public ResponseEntity<?> register(
             @RequestParam(name = "email", required = true) String email,
@@ -56,6 +61,11 @@ public class AuthController {
             @RequestParam(name = "role", required = false) Optional<String> role
     )
     {
+        // TODO change to throw exception
+        if(customerRepository.existsByEmail(email))
+        {
+            return ResponseEntity.status(400).body("Email already taken.");
+        }
         Customer customer = new Customer();
         customer.setEmail(email);
         customer.setPassword(password);
@@ -65,16 +75,29 @@ public class AuthController {
         return ResponseEntity.status(201).body(customerRepository.save(customer));
     }
 
-    /*
-    public ResponseEntity<User> register(@RequestBody RegisterRequest registerRequest) {
-        User created = new User(0,
+     */
+
+    @Authorized
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteById(
+            @PathVariable("id") int id
+    ) throws CustomerNotFoundException
+    {
+        if(!customerRepository.existsById(id))
+        {
+            throw new CustomerNotFoundException();
+        }
+        customerRepository.deleteById(id);
+        return ResponseEntity.status(204).body("");
+    }
+
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        Customer created = new Customer(0,
                 registerRequest.getEmail(),
                 registerRequest.getPassword(),
                 registerRequest.getFirstName(),
-                registerRequest.getLastName());
-              
-        		
-
+                registerRequest.getLastName(),
+                "User");
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(created));
-    } */
+    }
 }

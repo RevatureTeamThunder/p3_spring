@@ -73,6 +73,7 @@ public class ProductController {
         return ResponseEntity.ok(productList);
     }
 
+
     @Authorized
     @DeleteMapping("/{id}")
     public ResponseEntity<Product> deleteProduct(@PathVariable("id") int id) {
