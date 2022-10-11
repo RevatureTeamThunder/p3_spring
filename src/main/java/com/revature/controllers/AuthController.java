@@ -4,6 +4,7 @@ import com.revature.annotations.Authorized;
 import com.revature.dtos.LoginRequest;
 import com.revature.dtos.RegisterRequest;
 import com.revature.exceptions.CustomerNotFoundException;
+import com.revature.exceptions.EmailAlreadyExistsException;
 import com.revature.models.Customer;
 import com.revature.repositories.CustomerRepository;
 import com.revature.services.AuthService;
@@ -92,13 +93,19 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        Customer created = new Customer(
-                registerRequest.getEmail(),
-                registerRequest.getPassword(),
-                registerRequest.getFirstName(),
-                registerRequest.getLastName(),
-                "User");
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) throws EmailAlreadyExistsException
+    {
+        Customer created = new Customer();
+
+        if(customerRepository.existsByEmail(registerRequest.getEmail()))
+        {
+            throw new EmailAlreadyExistsException();
+        }
+        created.setEmail(created.getEmail());
+        created.setPassword(registerRequest.getPassword());
+        created.setFirstName(registerRequest.getFirstName());
+        created.setLastName(registerRequest.getLastName());
+        created.setRole("User");
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(created));
     }
 }
