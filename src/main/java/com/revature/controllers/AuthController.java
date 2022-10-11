@@ -91,8 +91,9 @@ public class AuthController {
         return ResponseEntity.status(204).body("");
     }
 
+    @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        Customer created = new Customer(0,
+        Customer created = new Customer(
                 registerRequest.getEmail(),
                 registerRequest.getPassword(),
                 registerRequest.getFirstName(),
