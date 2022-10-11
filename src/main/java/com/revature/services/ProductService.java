@@ -18,23 +18,28 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    //List all products
     public List<Product> findAll() {
         return productRepository.findAll();
     }
 
-    public Optional<Product> findById(int id) {
-        return productRepository.findById(id);
+    //View detailed information about a single product
+    public Optional<Product> findById(int productId) {
+        return productRepository.findById(productId);
     }
 
+    //code by rev
     public Product save(Product product) {
         return productRepository.save(product);
     }
     
+   //code by rev
     public List<Product> saveAll(List<Product> productList, List<ProductInfo> metadata) {
     	return productRepository.saveAll(productList);
     }
 
-    public void delete(int id) {
-        productRepository.deleteById(id);
+    //Delete a product
+    public void delete(int productId) {
+        productRepository.deleteById(productId);
     }
 }
