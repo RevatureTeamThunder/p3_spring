@@ -12,4 +12,6 @@ public interface OrderHistoryRepository extends JpaRepository<OrderHistory, Inte
 	Optional<List<OrderHistory>> findByCustomerId(Integer customerId);
 
     Optional<List<OrderHistory>> findByCartId(Integer id);
+
+    Optional<List<OrderHistory>> findAllByCartId(int id);
 }

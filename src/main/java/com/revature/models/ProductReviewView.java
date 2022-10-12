@@ -16,7 +16,7 @@ import javax.persistence.Table;
 public class ProductReviewView {
 
 	@Id
-	private Integer reviewId;
+	private long reviewId;
 	private Integer customerId;
 	private Integer productId;
 	private Integer rating;

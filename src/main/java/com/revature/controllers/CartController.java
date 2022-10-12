@@ -41,11 +41,11 @@ public class CartController
     @Authorized
     @GetMapping("/{id}")
     public ResponseEntity<?> getCartById(
-            @PathVariable("id") int cartId,
+            @PathVariable("id") long cartId,
             @RequestParam(value = "customer_id", required = true) int customerId
     ) throws NoPermissionException, CartNotFoundException
     {
-        Optional<Cart> cart = cartRepository.findById(cartId);
+        Optional<Cart> cart = cartRepository.findByCartId(cartId);
         if(cart.isPresent())
         {
             if(cart.get().getCustomerId() != customerId)
@@ -92,7 +92,7 @@ public class CartController
     @Authorized
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteItemFromCart(
-            @PathVariable("id") int cartId,
+            @PathVariable("id") long cartId,
             @RequestParam(name = "product_id", required = true) int productId
     ) throws ProductNotFoundException, CartNotFoundException
     {
@@ -112,16 +112,12 @@ public class CartController
     @Authorized
     @PutMapping("/{id}/update")
     public ResponseEntity<?> updateCartItemQuantity(
-            @PathVariable("id") int cartId,
+            @PathVariable("id") long cartId,
             @RequestParam(name = "product_id", required = true) int productId,
             @RequestParam(name = "quantity", required = true) int quantity
     ) throws CartNotFoundException, CartItemNotFoundException
     {
-        if(!cartRepository.existsById(cartId))
-        {
-            throw new CartNotFoundException();
-        }
-        Optional<Cart> cart = cartRepository.findById(cartId);
+        Optional<Cart> cart = cartRepository.findByCartId(cartId);
         if(cart.isPresent())
         {
             Optional<CartItems> cartItems = cartItemsRepository.findByCustomerIdAndProductId(cart.get().getCartId(), productId);

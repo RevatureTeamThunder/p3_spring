@@ -12,7 +12,7 @@ public class ReviewCart
 {
     @Id
     @Column(name = "id")
-    private Integer id;
+    private long id;
 
     @Column(name = "cart_id")
     private Integer cartId;
@@ -71,7 +71,7 @@ public class ReviewCart
         return cartId;
     }
 
-    public Integer getId()
+    public long getId()
     {
         return id;
     }

@@ -19,7 +19,7 @@ public class PurchasedItems {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private long id;
 	private Integer customerId;
 	private Integer productId;
 	private Integer cardId;

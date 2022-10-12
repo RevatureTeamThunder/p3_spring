@@ -16,7 +16,7 @@ import javax.persistence.Table;
 public class OrderHistory {
 
 	 	@Id
-	    private Integer id;
+	    private long id;
 	 	private Integer customerId;
 	 	private Integer productId;
 	 	private Integer cartId;

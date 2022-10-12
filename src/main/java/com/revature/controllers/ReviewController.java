@@ -33,10 +33,10 @@ public class ReviewController
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductReviewByReviewId(
-            @PathVariable("id") int reviewId
+            @PathVariable("id") long reviewId
     ) throws ProductReviewNotFoundException
     {
-        Optional<ProductReview> productReview = productReviewRepository.findById(reviewId);
+        Optional<ProductReview> productReview = productReviewRepository.findByReviewId(reviewId);
         if(productReview.isPresent())
         {
             return ResponseEntity.ok(productReview.get());
@@ -102,13 +102,13 @@ public class ReviewController
     @Authorized
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateReview(
-            @PathVariable("id") int reviewId,
+            @PathVariable("id") long reviewId,
             @RequestParam(name = "customer_id", required = true) int customerId,
             @RequestParam(name = "rating", required = true) int rating,
             @RequestParam(name = "comment", required = true) String productComments
     ) throws ProductReviewNotFoundException, NoPermissionException
     {
-        Optional<ProductReview> review = productReviewRepository.findById(reviewId);
+        Optional<ProductReview> review = productReviewRepository.findByReviewId(reviewId);
         if(review.isPresent())
         {
             if (review.get().getCustomerId() != customerId)
@@ -128,11 +128,11 @@ public class ReviewController
     @Authorized
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteReview(
-            @PathVariable("id") int reviewId,
+            @PathVariable("id") long reviewId,
             @RequestParam(name = "customer_id", required = true) int customerId
     ) throws NoPermissionException, ProductReviewNotFoundException
     {
-        Optional<ProductReview> productReview = productReviewRepository.findById(reviewId);
+        Optional<ProductReview> productReview = productReviewRepository.findByReviewId(reviewId);
         if(productReview.isPresent())
         {
             if(productReview.get().getCustomerId() != customerId)

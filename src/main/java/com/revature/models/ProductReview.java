@@ -21,7 +21,7 @@ public class ProductReview {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer reviewId;
+	private long reviewId;
 	private Integer customerId;
 	private Integer productId;
 	private Integer rating;

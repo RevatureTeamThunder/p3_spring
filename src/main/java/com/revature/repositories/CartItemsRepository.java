@@ -18,12 +18,15 @@ public interface CartItemsRepository extends JpaRepository<CartItems, Integer>{
 
 	Optional<List<CartItems>>  findAllByCartId(int cartId);
 
+	Optional<List<CartItems>>  findAllByCartId(long cartId);
+
+
 	@Procedure(value = "purchase_items")
 	public void purchase_items(int cartId);
 
 	public void deleteCartItemsByProductId(int productId);
 
-	Optional<CartItems> findByCustomerIdAndProductId(int customerId, int productId);
+	Optional<CartItems> findByCustomerIdAndProductId(long customerId, int productId);
 
 	void deleteAllByCustomerId(int customerId);
 }

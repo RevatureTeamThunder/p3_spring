@@ -73,8 +73,8 @@ public class ProductController {
 
     @Authorized
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable("id") int id) {
-        Optional<Product> optional = productService.findById(id);
+    public ResponseEntity<Product> getProductById(@PathVariable("id") long id) {
+        Optional<Product> optional = productRepository.findByProductId(id);
 
         return optional.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -88,13 +88,13 @@ public class ProductController {
 
     @Authorized
     @DeleteMapping("/{id}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable("id") int id) {
-        Optional<Product> optional = productService.findById(id);
+    public ResponseEntity<Product> deleteProduct(@PathVariable("id") long id) {
+        Optional<Product> optional = productRepository.findByProductId(id);
 
         if(!optional.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        productService.delete(id);
+        productRepository.deleteByProductId(id);
 
         return ResponseEntity.ok(optional.get());
     }

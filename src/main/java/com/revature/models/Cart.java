@@ -19,7 +19,7 @@ public class Cart {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer cartId;
+	private long cartId;
 	private Integer customerId;
 	private boolean purchased;
 

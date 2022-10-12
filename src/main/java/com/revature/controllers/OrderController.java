@@ -9,6 +9,7 @@ import com.revature.models.OrderHistory;
 import com.revature.models.Product;
 import com.revature.repositories.CartItemsRepository;
 import com.revature.repositories.CartRepository;
+import com.revature.repositories.OrderHistoryRepository;
 import com.revature.repositories.ProductRepository;
 import com.revature.services.OrderHistoryService;
 import org.json.JSONArray;
@@ -23,17 +24,20 @@ import java.util.Optional;
 @RequestMapping("/api/order")
 public class OrderController
 {
-    private OrderHistoryService orderHistoryService;
+    private final OrderHistoryService orderHistoryService;
 
-    private CartRepository cartRepository;
+    private final OrderHistoryRepository orderHistoryRepository;
 
-    private CartItemsRepository cartItemsRepository;
+    private final CartRepository cartRepository;
 
-    private ProductRepository productRepository;
+    private final CartItemsRepository cartItemsRepository;
 
-    public OrderController(OrderHistoryService orderHistoryService, CartRepository cartRepository, CartItemsRepository cartItemsRepository, ProductRepository productRepository)
+    private final ProductRepository productRepository;
+
+    public OrderController(OrderHistoryService orderHistoryService, OrderHistoryRepository orderHistoryRepository, CartRepository cartRepository, CartItemsRepository cartItemsRepository, ProductRepository productRepository)
     {
         this.orderHistoryService = orderHistoryService;
+        this.orderHistoryRepository = orderHistoryRepository;
         this.cartRepository = cartRepository;
         this.cartItemsRepository = cartItemsRepository;
         this.productRepository = productRepository;
@@ -66,10 +70,10 @@ public class OrderController
     @Authorized
     @GetMapping("/{id}")
     public ResponseEntity<?> viewOrder(
-            @PathVariable("id") int id
+            @PathVariable("id") int cartId
     ) throws OrderHistoryNotFoundException, JSONException
     {
-        Optional<List<OrderHistory>> orderHistoryList = orderHistoryService.findByCartId(id);
+        Optional<List<OrderHistory>> orderHistoryList = orderHistoryRepository.findAllByCartId(cartId);
         if(orderHistoryList.isPresent())
         {
             double cart_cost = 0.00;
