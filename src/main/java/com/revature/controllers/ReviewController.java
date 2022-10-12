@@ -19,9 +19,9 @@ import java.util.Optional;
 @RequestMapping("/api/review")
 public class ReviewController
 {
-    private ProductReviewRepository productReviewRepository;
-    private ProductRepository productRepository;
-    private ProductReviewService productReviewService;
+    private final ProductReviewRepository productReviewRepository;
+    private final ProductRepository productRepository;
+    private final ProductReviewService productReviewService;
 
 
     public ReviewController(ProductReviewRepository productReviewRepository, ProductRepository productRepository, ProductReviewService productReviewService)
@@ -40,6 +40,20 @@ public class ReviewController
         if(productReview.isPresent())
         {
             return ResponseEntity.ok(productReview.get());
+        }
+        throw new ProductReviewNotFoundException();
+    }
+
+    @Authorized
+    @GetMapping("/me")
+    public ResponseEntity<?> getMyProductReviews(
+            @RequestParam(name = "customer_id", required = true) int customerId
+    ) throws ProductReviewNotFoundException
+    {
+        Optional<List<ProductReview>> productReviewList = productReviewRepository.findAllByCustomerId(customerId);
+        if(productReviewList.isPresent())
+        {
+            return ResponseEntity.ok(productReviewList.get());
         }
         throw new ProductReviewNotFoundException();
     }
@@ -68,18 +82,21 @@ public class ReviewController
             @RequestParam(name = "customer_id", required = true) int customerId,
             @RequestParam(name = "rating", required = true) int rating,
             @RequestParam(name = "comment", required = true) String productComments
-    ) throws ProductNotFoundException
+    ) throws ProductNotFoundException, NoProductReviewException
     {
         if(!productRepository.existsById(productId))
         {
             throw new ProductNotFoundException();
         }
-        ProductReview productReview = new ProductReview();
-        productReview.setProductId(productId);
-        productReview.setCustomerId(customerId);
-        productReview.setRating(rating);
-        productReview.setProductComments(productComments);
-        return ResponseEntity.status(201).body(productReviewRepository.save(productReview));
+
+        // Call the stored procedure to update rating properly.
+        productReviewRepository.productReview(productId, customerId, rating, productComments, "add");
+        Optional<ProductReview> productReview = productReviewRepository.findProductReviewByCustomerIdAndProductId(customerId, productId);
+        if(productReview.isPresent())
+        {
+            return ResponseEntity.status(201).body(productReview.get());
+        }
+        throw new NoProductReviewException();
     }
 
     @Authorized
@@ -98,11 +115,12 @@ public class ReviewController
             {
                 throw new NoPermissionException();
             }
-            ProductReview productReview = new ProductReview();
-            productReview.setReviewId(reviewId);
-            productReview.setRating(rating);
-            productReview.setProductComments(productComments);
-            return ResponseEntity.status(201).body(productReviewRepository.save(productReview));
+            // Call the stored procedure
+            productReviewRepository.productReview(review.get().getProductId(), customerId, rating, productComments, "update");
+            // Only the rating and comments need to be altered before returning.
+            review.get().setRating(rating);
+            review.get().setProductComments(productComments);
+            return ResponseEntity.ok(review.get());
         }
         throw new ProductReviewNotFoundException();
     }
@@ -121,7 +139,8 @@ public class ReviewController
             {
                 throw new NoPermissionException();
             }
-            productReviewRepository.deleteById(reviewId);
+            // Call the stored procedure to delete it.
+            productReviewRepository.productReview(productReview.get().getProductId(), customerId, 0, "", "delete");
             return ResponseEntity.status(204).body("");
         }
         throw new ProductReviewNotFoundException();
