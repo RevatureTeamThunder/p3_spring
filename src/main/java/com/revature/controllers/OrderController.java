@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,7 +77,7 @@ public class OrderController
         Optional<List<OrderHistory>> orderHistoryList = orderHistoryRepository.findAllByCartId(cartId);
         if(orderHistoryList.isPresent())
         {
-            double cart_cost = 0.00;
+            BigDecimal cart_cost = BigDecimal.valueOf(0.00);
             JSONObject jsonArray = new JSONObject();
             int x = 0;
             for(OrderHistory oh : orderHistoryList.get())
@@ -93,6 +94,7 @@ public class OrderController
                 purchasedItem.put("total_cost", oh.getTotalCost());
                 jsonArray.put(String.valueOf(x), purchasedItem);
                 x++;
+                cart_cost = cart_cost.add(oh.getTotalCost());
             }
             jsonArray.put("cart_cost", cart_cost);
             return ResponseEntity.ok(jsonArray);

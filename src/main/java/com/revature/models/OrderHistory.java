@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -23,5 +24,5 @@ public class OrderHistory {
 	 	private Integer quantity;
 	 	private String productname;
 	 	private String price;
-	 	private Integer totalCost;
+	 	private BigDecimal totalCost;
 }
