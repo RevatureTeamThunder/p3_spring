@@ -43,7 +43,7 @@ public class ProductController {
         switch(orderBy)
         {
             case "price":
-                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByPrice(name, price);
+                productList = productRepository.findAllByNameContainsAndPriceLessThanOrderByPrice(name, price);
                 break;
             case "name":
                 productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByName(name, price);
@@ -61,7 +61,7 @@ public class ProductController {
                 productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByReviewCountDesc(name, price);
                 break;
             default:
-                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByPrice(name, price);
+                productList = productRepository.findAllByNameLikeAndPriceLessThanOrderByPrice(name, price);
                 break;
         }
         if(productList.isPresent())
