@@ -2,10 +2,13 @@ package com.revature.controllers;
 
 import com.revature.annotations.Authorized;
 import com.revature.exceptions.CartNotFoundException;
+import com.revature.exceptions.ProductNotFoundException;
 import com.revature.models.Cart;
+import com.revature.models.CartItems;
 import com.revature.models.ReviewCart;
 import com.revature.repositories.CartItemsRepository;
 import com.revature.repositories.CartRepository;
+import com.revature.repositories.ProductRepository;
 import com.revature.repositories.ReviewCartRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,12 +27,14 @@ public class CartController
     private CartRepository cartRepository;
     private CartItemsRepository cartItemsRepository;
     private ReviewCartRepository reviewCartRepository;
+    private ProductRepository productRepository;
 
-    public CartController(CartRepository cartRepository, CartItemsRepository cartItemsRepository, ReviewCartRepository reviewCartRepository)
+    public CartController(CartRepository cartRepository, CartItemsRepository cartItemsRepository, ReviewCartRepository reviewCartRepository, ProductRepository productRepository)
     {
         this.cartRepository = cartRepository;
         this.cartItemsRepository = cartItemsRepository;
         this.reviewCartRepository = reviewCartRepository;
+        this.productRepository = productRepository;
     }
 
     @Authorized
@@ -79,6 +84,26 @@ public class CartController
             }
             shoppingCart.put("cart_total", cart_total);
             return ResponseEntity.ok(shoppingCart);
+        }
+        throw new CartNotFoundException();
+    }
+
+    @Authorized
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<?> deleteItemFromCart(
+            @PathVariable("id") int cartId,
+            @RequestParam(name = "product_id", required = true) int productId
+    ) throws ProductNotFoundException, CartNotFoundException
+    {
+        Optional<List<CartItems>> cartItemsList = cartItemsRepository.findAllByCartId(cartId);
+        if(cartItemsList.isPresent())
+        {
+            if(!productRepository.existsById(productId))
+            {
+                throw new ProductNotFoundException();
+            }
+            cartItemsRepository.deleteCartItemsByProductId(productId);
+            return ResponseEntity.status(204).body("");
         }
         throw new CartNotFoundException();
     }

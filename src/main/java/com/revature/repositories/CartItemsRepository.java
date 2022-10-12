@@ -21,4 +21,6 @@ public interface CartItemsRepository extends JpaRepository<CartItems, Integer>{
 	@Procedure(value = "purchase_items")
 	public void purchase_items(int cartId);
 
+	public void deleteCartItemsByProductId(int productId);
+
 }
