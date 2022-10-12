@@ -118,6 +118,7 @@ public class OrderController
                     {
                         throw new NotEnoughProductQuantityException();
                     }
+                    cartItemsRepository.purchase_items(cartId);
                 }
             }
             return ResponseEntity.ok("");
