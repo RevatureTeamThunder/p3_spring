@@ -6,4 +6,5 @@ import com.revature.models.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Integer>{
 
+    void deleteByCustomerIdAndPurchased(int customerId, boolean b);
 }

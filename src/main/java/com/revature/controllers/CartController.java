@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 import com.revature.annotations.Authorized;
+import com.revature.exceptions.CartItemNotFoundException;
 import com.revature.exceptions.CartNotFoundException;
 import com.revature.exceptions.ProductNotFoundException;
 import com.revature.models.Cart;
@@ -24,10 +25,10 @@ import java.util.Optional;
 @RequestMapping("/api/cart")
 public class CartController
 {
-    private CartRepository cartRepository;
-    private CartItemsRepository cartItemsRepository;
-    private ReviewCartRepository reviewCartRepository;
-    private ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    private final CartItemsRepository cartItemsRepository;
+    private final ReviewCartRepository reviewCartRepository;
+    private final ProductRepository productRepository;
 
     public CartController(CartRepository cartRepository, CartItemsRepository cartItemsRepository, ReviewCartRepository reviewCartRepository, ProductRepository productRepository)
     {
@@ -106,5 +107,43 @@ public class CartController
             return ResponseEntity.status(204).body("");
         }
         throw new CartNotFoundException();
+    }
+
+    @Authorized
+    @PutMapping("/{id}/update")
+    public ResponseEntity<?> updateCartItemQuantity(
+            @PathVariable("id") int cartId,
+            @RequestParam(name = "product_id", required = true) int productId,
+            @RequestParam(name = "quantity", required = true) int quantity
+    ) throws CartNotFoundException, CartItemNotFoundException
+    {
+        if(!cartRepository.existsById(cartId))
+        {
+            throw new CartNotFoundException();
+        }
+        Optional<Cart> cart = cartRepository.findById(cartId);
+        if(cart.isPresent())
+        {
+            Optional<CartItems> cartItems = cartItemsRepository.findByCustomerIdAndProductId(cart.get().getCartId(), productId);
+            if(cartItems.isPresent())
+            {
+                cartItems.get().setProductId(productId);
+                cartItems.get().setQuantity(quantity);
+                return ResponseEntity.ok(cartItemsRepository.save(cartItems.get()));
+            }
+            throw new CartItemNotFoundException();
+        }
+        throw new CartNotFoundException();
+    }
+
+    @Authorized
+    @DeleteMapping("/empty")
+    public ResponseEntity<?> emptyCart(
+            @RequestParam(name = "customer_id", required = true) int customerId
+    )
+    {
+        cartItemsRepository.deleteAllByCustomerId(customerId);
+        cartRepository.deleteByCustomerIdAndPurchased(customerId, false);
+        return ResponseEntity.status(204).body("");
     }
 }
