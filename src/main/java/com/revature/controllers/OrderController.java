@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@RestController
 @RequestMapping("/api/order")
 public class OrderController
 {
@@ -88,7 +89,7 @@ public class OrderController
                 purchasedItem.put("cart_id", oh.getCartId());
                 purchasedItem.put("product_id", oh.getProductId());
                 purchasedItem.put("product_link", "/api/product/" + oh.getProductId());
-                purchasedItem.put("name", oh.getProductname());
+                purchasedItem.put("name", oh.getName());
                 purchasedItem.put("quantity", oh.getQuantity());
                 purchasedItem.put("price", oh.getPrice());
                 purchasedItem.put("total_cost", oh.getTotalCost());
