@@ -2,13 +2,13 @@ package com.revature.controllers;
 
 import com.revature.annotations.Authorized;
 
-import com.revature.dtos.ProductInfo;
+import com.revature.exceptions.ProductNotFoundException;
 import com.revature.models.Product;
+import com.revature.repositories.ProductRepository;
 import com.revature.services.ProductService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,15 +18,57 @@ import java.util.Optional;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductRepository productRepository) {
         this.productService = productService;
+        this.productRepository = productRepository;
     }
 
     @Authorized
     @GetMapping
     public ResponseEntity<List<Product>> getInventory() {
         return ResponseEntity.ok(productService.findAll());
+    }
+
+    @Authorized
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProducts(
+            @RequestParam(name = "name", required = true) String name,
+            @RequestParam(name = "order_by", required = false, defaultValue = "price") String orderBy,
+            @RequestParam(name = "price", required = false, defaultValue = "9999.99") double price
+    ) throws ProductNotFoundException
+    {
+        Optional<List<Product>> productList;
+        switch(orderBy)
+        {
+            case "price":
+                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByPrice(name, price);
+                break;
+            case "name":
+                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByName(name, price);
+                break;
+            case "category":
+            case "category_id":
+                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByCategoryId(name, price);
+                break;
+            case "quantity":
+                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByQuantity(name, price);
+                break;
+            case "review":
+            case "reviews":
+            case "review_count":
+                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByReviewCountDesc(name, price);
+                break;
+            default:
+                productList = productRepository.findAllByNameContainingAndPriceLessThanOrderByPrice(name, price);
+                break;
+        }
+        if(productList.isPresent())
+        {
+            return ResponseEntity.ok(productList);
+        }
+        throw new ProductNotFoundException();
     }
 
     @Authorized
