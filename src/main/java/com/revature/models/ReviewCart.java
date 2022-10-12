@@ -1,27 +1,82 @@
 package com.revature.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.hibernate.annotations.Immutable;
 
-@Data
+import javax.persistence.*;
+import java.math.BigDecimal;
+
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@Immutable
 @Table(name = "review_cart")
-public class ReviewCart {
-	
-	@Id
-	private Integer id;
-	private Integer cartId;
-	private Integer customerId;
-	private Integer productId;
-	private Integer quantity;
-	private String name;
-	private Integer price;
-	private Integer totalCost;
+public class ReviewCart
+{
+    @Id
+    @Column(name = "id")
+    private Integer id;
 
+    @Column(name = "cart_id")
+    private Integer cartId;
+
+    @Column(name = "customer_id")
+    private Integer customerId;
+
+    @Column(name = "product_id")
+    private Integer productId;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Lob
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "price", precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @Column(name = "total_cost")
+    private BigDecimal totalCost;
+
+    public BigDecimal getTotalCost()
+    {
+        return totalCost;
+    }
+
+    public BigDecimal getPrice()
+    {
+        return price;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Integer getQuantity()
+    {
+        return quantity;
+    }
+
+    public Integer getProductId()
+    {
+        return productId;
+    }
+
+    public Integer getCustomerId()
+    {
+        return customerId;
+    }
+
+    public Integer getCartId()
+    {
+        return cartId;
+    }
+
+    public Integer getId()
+    {
+        return id;
+    }
+
+    protected ReviewCart()
+    {
+    }
 }
