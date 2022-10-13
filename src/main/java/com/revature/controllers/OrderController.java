@@ -46,7 +46,7 @@ public class OrderController
     }
 
 
-    @Authorized
+    //@Authorized
     @GetMapping("/")
     public ResponseEntity<?> getAllOrders(
             @RequestParam(name = "customer_id", required = true) int customerId
@@ -55,6 +55,7 @@ public class OrderController
         Optional<List<OrderHistory>> orderHistoryList = orderHistoryService.viewAllOrderHistoryOfCustomer(customerId);
         if(orderHistoryList.isPresent())
         {
+            /*
             JSONArray jsonObject = new JSONArray();
             for(OrderHistory oh : orderHistoryList.get())
             {
@@ -64,12 +65,17 @@ public class OrderController
                 ohObject.put("order_link", "/api/order/" + oh.getId());
                 jsonObject.put(ohObject);
             }
+
+
             return ResponseEntity.ok(jsonObject);
+
+             */
+            return ResponseEntity.ok(orderHistoryList.get());
         }
         throw new OrderHistoryNotFoundException();
     }
 
-    @Authorized
+    //@Authorized
     @GetMapping("/{id}")
     public ResponseEntity<?> viewOrder(
             @PathVariable("id") int cartId
@@ -78,6 +84,7 @@ public class OrderController
         Optional<List<OrderHistory>> orderHistoryList = orderHistoryRepository.findAllByCartId(cartId);
         if(orderHistoryList.isPresent())
         {
+            /*
             BigDecimal cart_cost = BigDecimal.valueOf(0.00);
             JSONObject jsonArray = new JSONObject();
             int x = 0;
@@ -99,17 +106,20 @@ public class OrderController
             }
             jsonArray.put("cart_cost", cart_cost);
             return ResponseEntity.ok(jsonArray);
+
+             */
+            return ResponseEntity.ok(orderHistoryList.get());
         }
         throw new OrderHistoryNotFoundException();
     }
 
-    @Authorized
+    //@Authorized
     @PutMapping("/add")
     public ResponseEntity<?> purchaseItems(
-            @RequestParam(name = "cart_id", required = true) int cartId
+            @RequestParam(name = "cart_id", required = true) long cartId
     ) throws CartItemNotFoundException, NotEnoughProductQuantityException
     {
-        if(!cartRepository.existsById(cartId))
+        if(!cartRepository.existsByCartId(cartId))
         {
             throw new CartItemNotFoundException();
         }
@@ -125,7 +135,7 @@ public class OrderController
                     {
                         throw new NotEnoughProductQuantityException();
                     }
-                    cartItemsRepository.purchase_items(cartId);
+                    cartItemsRepository.purchase_items((int) cartId);
                 }
             }
             return ResponseEntity.ok("");

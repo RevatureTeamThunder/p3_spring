@@ -25,4 +25,6 @@ public interface CartRepository extends JpaRepository<Cart, Integer>{
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "delete from cart where cart_id = :cartId", nativeQuery = true)
     public void deleteByCartId(long cartId);
+
+    boolean existsByCartId(long cartId);
 }

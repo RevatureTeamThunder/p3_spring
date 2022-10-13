@@ -21,7 +21,9 @@ public interface CartItemsRepository extends JpaRepository<CartItems, Integer>{
 	Optional<List<CartItems>>  findAllByCartId(long cartId);
 
 
-	@Procedure(value = "purchase_items")
+	@Transactional
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query(value = "CALL purchase_items(:cartId)", nativeQuery = true)
 	public void purchase_items(int cartId);
 
 	@Transactional
