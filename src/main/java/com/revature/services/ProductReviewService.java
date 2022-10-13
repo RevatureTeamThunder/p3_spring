@@ -16,7 +16,7 @@ public class ProductReviewService {
 		this.productReviewRepository = productReviewRepository;
 	}
 	
-	public Optional<List<ProductReview>> viewAllReviews(int productId){
+	public Optional<List<ProductReview>> viewAllReviews(long productId){
 		return productReviewRepository.findAllByProductId(productId);
 	}
 	

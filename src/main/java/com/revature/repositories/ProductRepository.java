@@ -30,5 +30,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     public Optional<Product> findByProductId(long productId);
 
+    public boolean existsByProductId(long productId);
+
     public void deleteByProductId(long productId);
 }
