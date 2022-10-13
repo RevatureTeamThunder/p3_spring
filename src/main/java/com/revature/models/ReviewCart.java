@@ -26,7 +26,6 @@ public class ReviewCart
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Lob
     @Column(name = "name")
     private String name;
 
@@ -78,5 +77,45 @@ public class ReviewCart
 
     protected ReviewCart()
     {
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+
+    public void setCartId(Integer cartId)
+    {
+        this.cartId = cartId;
+    }
+
+    public void setCustomerId(Integer customerId)
+    {
+        this.customerId = customerId;
+    }
+
+    public void setProductId(Integer productId)
+    {
+        this.productId = productId;
+    }
+
+    public void setQuantity(Integer quantity)
+    {
+        this.quantity = quantity;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public void setPrice(BigDecimal price)
+    {
+        this.price = price;
+    }
+
+    public void setTotalCost(BigDecimal totalCost)
+    {
+        this.totalCost = totalCost;
     }
 }

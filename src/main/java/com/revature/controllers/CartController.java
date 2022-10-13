@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 import com.revature.annotations.Authorized;
+import com.revature.dtos.ViewCartRequest;
 import com.revature.exceptions.CartItemNotFoundException;
 import com.revature.exceptions.CartNotFoundException;
 import com.revature.exceptions.ProductNotFoundException;
@@ -11,8 +12,10 @@ import com.revature.repositories.CartItemsRepository;
 import com.revature.repositories.CartRepository;
 import com.revature.repositories.ProductRepository;
 import com.revature.repositories.ReviewCartRepository;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +41,7 @@ public class CartController
         this.productRepository = productRepository;
     }
 
-    @Authorized
+    //@Authorized
     @GetMapping("/{id}")
     public ResponseEntity<?> getCartById(
             @PathVariable("id") long cartId,
@@ -48,6 +51,7 @@ public class CartController
         Optional<Cart> cart = cartRepository.findByCartId(cartId);
         if(cart.isPresent())
         {
+
             if(cart.get().getCustomerId() != customerId)
             {
                 throw new NoPermissionException();
@@ -60,15 +64,18 @@ public class CartController
     @Authorized
     @GetMapping("/view")
     public ResponseEntity<?> viewAllItemsInCart(
-            @RequestParam(name = "id", required = true) int customerId
+            @RequestParam(name = "customer_id", required = true) int customer_id
     ) throws JSONException, CartNotFoundException
     {
         JSONObject shoppingCart = new JSONObject();
-        Optional<List<ReviewCart>> reviewCartList = reviewCartRepository.findAllByCustomerId(customerId);
+        Optional<List<ReviewCart>> reviewCartList = reviewCartRepository.findAllByCustomerId(customer_id);
         if(reviewCartList.isPresent())
         {
+
+            /*
             BigDecimal cart_total = BigDecimal.valueOf(0);
             int x = 0;
+            JSONArray arr = new JSONArray();
             for(ReviewCart rc : reviewCartList.get())
             {
                 JSONObject obj = new JSONObject();
@@ -80,16 +87,38 @@ public class CartController
                 obj.put("price", rc.getPrice());
                 obj.put("total_cost", rc.getTotalCost());
                 cart_total = rc.getTotalCost().add(cart_total);
-                shoppingCart.put(String.valueOf(x), obj);
+                arr.put(obj);
                 ++x;
             }
-            shoppingCart.put("cart_total", cart_total);
-            return ResponseEntity.ok(shoppingCart);
+             */
+            return ResponseEntity.ok(reviewCartList.get());
         }
         throw new CartNotFoundException();
     }
 
     @Authorized
+    @PutMapping("/add/{id}")
+    public ResponseEntity<?> addItemToCart(
+            @PathVariable("id") long cartId,
+            @RequestParam(name = "product_id", required = true) int productId,
+            @RequestParam(name = "quantity", defaultValue = "1") int quantity
+    ) throws CartNotFoundException
+    {
+
+        Optional<Cart> cart = cartRepository.findByCartId(cartId);
+        if(cart.isPresent())
+        {
+            CartItems cartItems = new CartItems();
+            cartItems.setCartId( (int) cartId);
+            cartItems.setProductId(productId);
+            cartItems.setQuantity(quantity);
+            cartItems.setCustomerId(cart.get().getCustomerId());
+            return ResponseEntity.status(201).body(cartItemsRepository.save(cartItems));
+        }
+        throw new CartNotFoundException();
+    }
+
+    //@Authorized
     @DeleteMapping("/{id}/delete")
     public ResponseEntity<?> deleteItemFromCart(
             @PathVariable("id") long cartId,
@@ -109,7 +138,7 @@ public class CartController
         throw new CartNotFoundException();
     }
 
-    @Authorized
+    //@Authorized
     @PutMapping("/{id}/update")
     public ResponseEntity<?> updateCartItemQuantity(
             @PathVariable("id") long cartId,
@@ -132,7 +161,7 @@ public class CartController
         throw new CartNotFoundException();
     }
 
-    @Authorized
+    //@Authorized
     @DeleteMapping("/empty")
     public ResponseEntity<?> emptyCart(
             @RequestParam(name = "customer_id", required = true) int customerId
