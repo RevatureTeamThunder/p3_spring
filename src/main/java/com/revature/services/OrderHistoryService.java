@@ -35,7 +35,7 @@ public class OrderHistoryService {
 	
 	//List all products, quantity, and cost of the order by customer id
 	public Optional<List<OrderHistory>> viewAllOrderHistoryOfCustomer(Integer customerId){
-		return orderHistoryRepository.findByCustomerId(customerId);
+		return orderHistoryRepository.findByCustomerIdOrderByCartId(customerId);
 	}
 
 	/*

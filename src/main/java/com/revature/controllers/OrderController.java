@@ -46,7 +46,7 @@ public class OrderController
     }
 
 
-    //@Authorized
+    @Authorized
     @GetMapping("/")
     public ResponseEntity<?> getAllOrders(
             @RequestParam(name = "customer_id", required = true) int customerId
