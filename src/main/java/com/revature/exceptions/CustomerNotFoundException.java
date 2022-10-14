@@ -1,5 +1,5 @@
 package com.revature.exceptions;
 
-public class CustomerNotFoundException extends Throwable
+public class CustomerNotFoundException extends Exception
 {
 }

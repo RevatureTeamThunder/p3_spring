@@ -1,5 +1,5 @@
 package com.revature.exceptions;
 
-public class EmailAlreadyExistsException extends Throwable
+public class EmailAlreadyExistsException extends Exception
 {
 }
