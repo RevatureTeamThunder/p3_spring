@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/order")
+@CrossOrigin(origins = "*")
 public class OrderController
 {
     private final OrderHistoryService orderHistoryService;

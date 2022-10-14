@@ -1,14 +1,16 @@
 package com.revature.controllers;
 
 import com.revature.exceptions.OrderHistoryNotFoundException;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -18,7 +20,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.util.NestedServletException;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,10 +90,8 @@ public class OrderControllerTest
         RequestBuilder getOrderRequest = MockMvcRequestBuilders.get("/api/order/-1").session(session);
 
         Exception e = assertThrows(NestedServletException.class, () ->
-        {
-            this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
-                    .andExpect(MockMvcResultMatchers.status().is5xxServerError());
-        });
+                this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
+                        .andExpect(MockMvcResultMatchers.status().is5xxServerError()));
         assertEquals(OrderHistoryNotFoundException.class, e.getCause().getClass());
     }
 
@@ -112,10 +111,8 @@ public class OrderControllerTest
         RequestBuilder getOrderRequest = MockMvcRequestBuilders.get("/api/order/?customer_id=-1").session(session);
 
         Exception e = assertThrows(NestedServletException.class, () ->
-        {
-            this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
-                    .andExpect(MockMvcResultMatchers.status().is5xxServerError());
-        });
+                this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
+                        .andExpect(MockMvcResultMatchers.status().is5xxServerError()));
         assertEquals(OrderHistoryNotFoundException.class, e.getCause().getClass());
     }
 
