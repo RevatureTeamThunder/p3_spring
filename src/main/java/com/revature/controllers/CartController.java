@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000", "http://p3-client.s3-website-us-east-1.amazonaws.com"}, allowCredentials = "true")
 public class CartController
 {
     private final CartRepository cartRepository;
@@ -44,6 +44,25 @@ public class CartController
     ) throws NoPermissionException, CartNotFoundException
     {
         Optional<Cart> cart = cartRepository.findByCartId(cartId);
+        if(cart.isPresent())
+        {
+
+            if(cart.get().getCustomerId() != customerId)
+            {
+                throw new NoPermissionException();
+            }
+            return ResponseEntity.ok(cart.get());
+        }
+        throw new CartNotFoundException();
+    }
+    
+    @Authorized
+    @GetMapping("/customer_id/{id}")
+    public ResponseEntity<?> getCartBCustomerId(
+            @PathVariable("id") Integer customerId
+    ) throws NoPermissionException, CartNotFoundException
+    {
+        Optional<Cart> cart = cartRepository.findByCustomerId(customerId);
         if(cart.isPresent())
         {
 
@@ -150,6 +169,7 @@ public class CartController
         throw new CartNotFoundException();
     }
 
+    @Authorized
     @PutMapping("/{id}/update")
     public ResponseEntity<?> updateCartItemQuantity(
             @PathVariable("id") long cartId,
