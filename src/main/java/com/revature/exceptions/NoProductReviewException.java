@@ -1,5 +1,5 @@
 package com.revature.exceptions;
 
-public class NoProductReviewException extends Throwable
+public class NoProductReviewException extends Exception
 {
 }

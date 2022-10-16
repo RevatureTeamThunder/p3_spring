@@ -16,6 +16,8 @@ public interface CartRepository extends JpaRepository<Cart, Integer>{
     public void deleteByCustomerIdAndPurchased(int customerId, boolean b);
 
     Optional<Cart> findByCartId(long cartId);
+    
+    Optional<Cart> findByCustomerId(Integer customerId);
 
     @Transactional
     @Modifying

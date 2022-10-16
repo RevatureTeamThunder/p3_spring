@@ -1,5 +1,5 @@
 package com.revature.exceptions;
 
-public class NotEnoughProductQuantityException extends Throwable
+public class NotEnoughProductQuantityException extends Exception
 {
 }

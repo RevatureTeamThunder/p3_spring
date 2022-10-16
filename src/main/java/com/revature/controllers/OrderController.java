@@ -24,6 +24,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/order")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000", "http://p3-client.s3-website-us-east-1.amazonaws.com"}, allowCredentials = "true")
 public class OrderController
 {
     private final OrderHistoryService orderHistoryService;
@@ -46,11 +47,11 @@ public class OrderController
     }
 
 
-    //@Authorized
+    @Authorized
     @GetMapping("/")
     public ResponseEntity<?> getAllOrders(
-            @RequestParam(name = "customer_id", required = true) int customerId
-    ) throws OrderHistoryNotFoundException, JSONException
+            @RequestParam(name = "customer_id") int customerId
+    ) throws OrderHistoryNotFoundException
     {
         Optional<List<OrderHistory>> orderHistoryList = orderHistoryService.viewAllOrderHistoryOfCustomer(customerId);
         if(orderHistoryList.isPresent())
@@ -70,16 +71,20 @@ public class OrderController
             return ResponseEntity.ok(jsonObject);
 
              */
+            if(orderHistoryList.get().size() == 0)
+            {
+                throw new OrderHistoryNotFoundException();
+            }
             return ResponseEntity.ok(orderHistoryList.get());
         }
         throw new OrderHistoryNotFoundException();
     }
 
-    //@Authorized
+    @Authorized
     @GetMapping("/{id}")
     public ResponseEntity<?> viewOrder(
             @PathVariable("id") int cartId
-    ) throws OrderHistoryNotFoundException, JSONException
+    ) throws OrderHistoryNotFoundException
     {
         Optional<List<OrderHistory>> orderHistoryList = orderHistoryRepository.findAllByCartId(cartId);
         if(orderHistoryList.isPresent())
@@ -108,6 +113,10 @@ public class OrderController
             return ResponseEntity.ok(jsonArray);
 
              */
+            if(orderHistoryList.get().size() == 0)
+            {
+                throw new OrderHistoryNotFoundException();
+            }
             return ResponseEntity.ok(orderHistoryList.get());
         }
         throw new OrderHistoryNotFoundException();
@@ -116,7 +125,7 @@ public class OrderController
     //@Authorized
     @PutMapping("/add")
     public ResponseEntity<?> purchaseItems(
-            @RequestParam(name = "cart_id", required = true) long cartId
+            @RequestParam(name = "cart_id") long cartId
     ) throws CartItemNotFoundException, NotEnoughProductQuantityException
     {
         if(!cartRepository.existsByCartId(cartId))

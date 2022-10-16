@@ -10,6 +10,7 @@ import com.revature.repositories.CustomerRepository;
 import com.revature.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -78,17 +79,18 @@ public class AuthController {
 
      */
 
-    @Authorized
+    //@Authorized
+    @Transactional
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteById(
             @PathVariable("id") int id
     ) throws CustomerNotFoundException
     {
-        if(!customerRepository.existsById(id))
+        if(!customerRepository.existsByCustomerId((long)id))
         {
             throw new CustomerNotFoundException();
         }
-        customerRepository.deleteById(id);
+        customerRepository.deleteByCustomerId((long)id);
         return ResponseEntity.status(204).body("");
     }
 
@@ -101,7 +103,7 @@ public class AuthController {
         {
             throw new EmailAlreadyExistsException();
         }
-        created.setEmail(created.getEmail());
+        created.setEmail(registerRequest.getEmail());
         created.setPassword(registerRequest.getPassword());
         created.setFirstName(registerRequest.getFirstName());
         created.setLastName(registerRequest.getLastName());
