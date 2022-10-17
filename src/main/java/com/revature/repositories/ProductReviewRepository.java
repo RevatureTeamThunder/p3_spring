@@ -39,4 +39,8 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, In
     Optional<List<ProductReview>> findAllByCustomerId(int customerId);
 
     Optional<ProductReview> findByReviewId(long reviewId);
+
+    @Transactional
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    void deleteByReviewId(long reviewId);
 }

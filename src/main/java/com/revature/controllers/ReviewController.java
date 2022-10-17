@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 import com.revature.annotations.Authorized;
+import com.revature.dtos.AddReviewRequest;
 import com.revature.exceptions.NoProductReviewException;
 import com.revature.exceptions.ProductNotFoundException;
 import com.revature.exceptions.ProductReviewNotFoundException;
@@ -58,6 +59,10 @@ public class ReviewController
         Optional<List<ProductReview>> productReviewList = productReviewRepository.findAllByCustomerId(customerId);
         if(productReviewList.isPresent())
         {
+            if(productReviewList.get().size() == 0)
+            {
+                throw new ProductReviewNotFoundException();
+            }
             return ResponseEntity.ok(productReviewList.get());
         }
         throw new ProductReviewNotFoundException();
@@ -75,6 +80,10 @@ public class ReviewController
         Optional<List<ProductReviewView>> productReviewList = reviewViewRepository.findAllByProductId(productId);
         if(productReviewList.isPresent())
         {
+            if(productReviewList.get().size() == 0)
+            {
+                throw new NoProductReviewException();
+            }
             return ResponseEntity.ok(productReviewList.get());
         }
         throw new NoProductReviewException();
@@ -83,20 +92,17 @@ public class ReviewController
     @Authorized
     @PutMapping("/add")
     public ResponseEntity<?> addReview(
-            @RequestParam(name = "id", required = true) long productId,
-            @RequestParam(name = "customer_id", required = true) int customerId,
-            @RequestParam(name = "rating", required = true) int rating,
-            @RequestParam(name = "comment", required = true) String productComments
-    ) throws ProductNotFoundException, NoProductReviewException
+            @RequestBody AddReviewRequest addReviewRequest
+            ) throws ProductNotFoundException, NoProductReviewException
     {
-        if(!productRepository.existsByProductId(productId))
+        if(!productRepository.existsByProductId(addReviewRequest.getProduct_id()))
         {
             throw new ProductNotFoundException();
         }
 
         // Call the stored procedure to update rating properly.
-        productReviewRepository.add_rating((int) productId, customerId, rating, productComments);
-        Optional<ProductReview> productReview = productReviewRepository.findTopByCustomerIdAndProductIdOrderByReviewIdDesc(customerId, (int) productId);
+        productReviewRepository.add_rating(addReviewRequest.getProduct_id(), addReviewRequest.getCustomer_id(), addReviewRequest.getRating(), addReviewRequest.getComment());
+        Optional<ProductReview> productReview = productReviewRepository.findTopByCustomerIdAndProductIdOrderByReviewIdDesc(addReviewRequest.getCustomer_id(), addReviewRequest.getProduct_id());
         if(productReview.isPresent())
         {
             return ResponseEntity.status(201).body(productReview.get());
