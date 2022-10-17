@@ -1,16 +1,13 @@
 package com.revature.repositories;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.revature.models.CartItems;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 
 public interface CartItemsRepository extends JpaRepository<CartItems, Integer>{
 
@@ -18,33 +15,37 @@ public interface CartItemsRepository extends JpaRepository<CartItems, Integer>{
 
 	Optional<List<CartItems>>  findAllByCartId(int cartId);
 
-	Optional<List<CartItems>>  findAllByCartId(long cartId);
+	Optional<List<CartItems>> findAllByCartId(long cartId);
 
 
 	@Transactional
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = "CALL purchase_items(:cartId)", nativeQuery = true)
-	public void purchase_items(int cartId);
+	void purchase_items(int cartId);
 
 	@Transactional
 	@Modifying
-	public void deleteCartItemsByProductIdAndCartId(int productId, long cartId);
+	void deleteCartItemsByProductIdAndCartId(int productId, long cartId);
 
 	Optional<CartItems> findByCustomerIdAndProductId(long customerId, int productId);
 
 	@Transactional()
 	@Modifying
-	public void deleteAllByCustomerId(int customerId);
+	void deleteAllByCustomerId(int customerId);
 
-	public Optional<CartItems> findByCartIdAndProductId(long cartId, int productId);
+	Optional<CartItems> findByCartIdAndProductId(long cartId, int productId);
 
 	@Transactional
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = "delete from cart_items where cart_id = :cartId", nativeQuery = true)
-	public void deleteAllByCartId(long cartId);
+	void deleteAllByCartId(long cartId);
 
 	@Transactional
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query(value = "DELETE FROM purchased_items WHERE cart_id = :cartId", nativeQuery = true)
-	public void deletePurchasedItemsByCartId(long cartId);
+	void deletePurchasedItemsByCartId(long cartId);
+
+	@Transactional
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+    void deleteById(long id);
 }

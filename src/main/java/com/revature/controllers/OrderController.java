@@ -1,7 +1,9 @@
 package com.revature.controllers;
 
 import com.revature.annotations.Authorized;
+import com.revature.dtos.PurchaseItemRequest;
 import com.revature.exceptions.CartItemNotFoundException;
+import com.revature.exceptions.CartNotFoundException;
 import com.revature.exceptions.NotEnoughProductQuantityException;
 import com.revature.exceptions.OrderHistoryNotFoundException;
 import com.revature.models.CartItems;
@@ -123,19 +125,23 @@ public class OrderController
     }
 
     //@Authorized
-    @PutMapping("/add")
+    @PutMapping("/add/{id}")
     public ResponseEntity<?> purchaseItems(
-            @RequestParam(name = "cart_id") long cartId
-    ) throws CartItemNotFoundException, NotEnoughProductQuantityException
+            @PathVariable("id") long cartId
+            ) throws CartNotFoundException, NotEnoughProductQuantityException, CartItemNotFoundException
     {
         if(!cartRepository.existsByCartId(cartId))
         {
-            throw new CartItemNotFoundException();
+            throw new CartNotFoundException();
         }
         Optional<List<CartItems>> cartItemsList = cartItemsRepository.findAllByCartId(cartId);
         List<Product> productList = productRepository.findAll();
         if(cartItemsList.isPresent())
         {
+            if(cartItemsList.get().size() == 0)
+            {
+                throw new CartItemNotFoundException();
+            }
             for(CartItems cartItems : cartItemsList.get())
             {
                 for(Product product : productList)

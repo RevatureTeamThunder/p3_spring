@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.exceptions.CartNotFoundException;
 import com.revature.models.Cart;
 import com.revature.models.CartItems;
+import com.revature.models.Product;
 import com.revature.repositories.CartItemsRepository;
 import com.revature.repositories.CartRepository;
+import com.revature.repositories.ProductRepository;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,7 @@ import org.springframework.web.util.NestedServletException;
 
 import javax.naming.NoPermissionException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,6 +54,9 @@ public class CartControllerTest
 
     @Autowired
     private CartItemsRepository cartItemsRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Test
     @Order(1)
@@ -126,7 +133,7 @@ public class CartControllerTest
         assertEquals(NoPermissionException.class, e.getCause().getClass());
     }
 
-    //@Test
+    @Test
     @Order(5)
     public void viewAllItemsInCartTest() throws Exception
     {
@@ -140,13 +147,36 @@ public class CartControllerTest
 
         session = (MockHttpSession) mvcResult.getRequest().getSession();
 
+        // Create a cart for customer_id 2.
+        Cart cart = new Cart();
+        cart.setCustomerId(2);
+        cart.setPurchased(false);
+        Cart shoppingCart = cartRepository.save(cart);
 
+        List<Product> randomProducts = productRepository.getTwoRandom();
+        CartItems item1 = new CartItems();
+        item1.setCartId(shoppingCart.getCartId());
+        item1.setCustomerId(2);
+        item1.setProductId((int) randomProducts.get(0).getProductId());
+        item1.setQuantity(3);
+        CartItems item1Result = cartItemsRepository.save(item1);
+
+        CartItems item2 = new CartItems();
+        item2.setCartId(shoppingCart.getCartId());
+        item2.setCustomerId(2);
+        item2.setProductId((int) randomProducts.get(1).getProductId());
+        item2.setQuantity(1);
+        CartItems item2Result = cartItemsRepository.save(item2);
 
         RequestBuilder getOrderRequest = MockMvcRequestBuilders.get("/api/cart/view?customer_id=2").session(session);
 
         this.mvc.perform(getOrderRequest)
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
+
+        cartItemsRepository.deleteById(item1Result.getId());
+        cartItemsRepository.deleteById(item2Result.getId());
+        cartRepository.deleteByCartId(shoppingCart.getCartId());
     }
 
     @Test

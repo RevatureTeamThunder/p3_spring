@@ -1,6 +1,16 @@
 package com.revature.controllers;
 
+import com.revature.exceptions.CartItemNotFoundException;
+import com.revature.exceptions.CartNotFoundException;
+import com.revature.exceptions.NotEnoughProductQuantityException;
 import com.revature.exceptions.OrderHistoryNotFoundException;
+import com.revature.models.Cart;
+import com.revature.models.CartItems;
+import com.revature.models.Product;
+import com.revature.repositories.CartItemsRepository;
+import com.revature.repositories.CartRepository;
+import com.revature.repositories.ProductRepository;
+import com.revature.repositories.PurchasedItemsRepository;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -21,6 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.util.NestedServletException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,6 +49,18 @@ public class OrderControllerTest
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private CartItemsRepository cartItemsRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private PurchasedItemsRepository purchasedItemsRepository;
 
     @Test
     @Order(1)
@@ -149,15 +172,161 @@ public class OrderControllerTest
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    /*
-     * TODO test the purchase items function
-     *  Endpoint: /api/order/add
-     *  Method: PUT
-     *  Request Param: cart_id
-     *
-     * Write a script that adds some items into a cart using JPA Repository since that does not need to be tested.
-     * In the test, make sure to move the products from the purchased_items table to the cart_items table.
-     * The quantity of product will also need to be adjusted so it doesn't get messed up.
-     */
+    @Test
+    @Order(7)
+    public void purchaseItemsTest() throws Exception
+    {
+        session = new MockHttpSession();
+
+        ResultActions auth = mvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType(APPLICATION_JSON_UTF8)
+                .content("{\"email\": \"testuser@gmail.com\", \"password\": \"password\", \"role\": \"User\"}")
+                .session(session));
+
+        MvcResult mvcResult = auth.andReturn();
+
+        session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        // Create a cart for customer_id 2.
+        Cart cart = new Cart();
+        cart.setCustomerId(2);
+        cart.setPurchased(false);
+        Cart shoppingCart = cartRepository.save(cart);
+
+        List<Product> randomProducts = productRepository.getTwoRandom();
+        CartItems item1 = new CartItems();
+        item1.setCartId(shoppingCart.getCartId());
+        item1.setCustomerId(2);
+        item1.setProductId((int) randomProducts.get(0).getProductId());
+        item1.setQuantity(3);
+        CartItems item1Result = cartItemsRepository.save(item1);
+
+        CartItems item2 = new CartItems();
+        item2.setCartId(shoppingCart.getCartId());
+        item2.setCustomerId(2);
+        item2.setProductId((int) randomProducts.get(1).getProductId());
+        item2.setQuantity(1);
+        CartItems item2Result = cartItemsRepository.save(item2);
+
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/order/add/" + shoppingCart.getCartId()).contentType(APPLICATION_JSON_UTF8)
+                .session(session);
+
+        this.mvc.perform(getOrderRequest)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        cartItemsRepository.deleteById(item1Result.getId());
+        cartItemsRepository.deleteById(item2Result.getId());
+        purchasedItemsRepository.deleteByCartId(shoppingCart.getCartId());
+        cartRepository.deleteByCartId(shoppingCart.getCartId());
+
+        // Update the product quantities again
+        productRepository.save(randomProducts.get(0));
+
+    }
+
+    @Test
+    @Order(8)
+    public void purchaseItemsCartNotFoundTest() throws Exception
+    {
+        session = new MockHttpSession();
+
+        ResultActions auth = mvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType(APPLICATION_JSON_UTF8)
+                .content("{\"email\": \"testuser@gmail.com\", \"password\": \"password\", \"role\": \"User\"}")
+                .session(session));
+
+        MvcResult mvcResult = auth.andReturn();
+
+        session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/order/add/-1").contentType(APPLICATION_JSON_UTF8)
+                .session(session);
+
+        Exception e = assertThrows(NestedServletException.class, () ->
+                this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
+                        .andExpect(MockMvcResultMatchers.status().is4xxClientError()));
+        assertEquals(CartNotFoundException.class, e.getCause().getClass());
+    }
+
+    @Test
+    @Order(9)
+    public void purchaseItemsNotEnoughProductQuantityTest() throws Exception
+    {
+        session = new MockHttpSession();
+
+        ResultActions auth = mvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType(APPLICATION_JSON_UTF8)
+                .content("{\"email\": \"testuser@gmail.com\", \"password\": \"password\", \"role\": \"User\"}")
+                .session(session));
+
+        MvcResult mvcResult = auth.andReturn();
+
+        session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        // Create a cart for customer_id 2.
+        Cart cart = new Cart();
+        cart.setCustomerId(2);
+        cart.setPurchased(false);
+        Cart shoppingCart = cartRepository.save(cart);
+
+        List<Product> randomProducts = productRepository.getTwoRandom();
+        CartItems item1 = new CartItems();
+        item1.setCartId(shoppingCart.getCartId());
+        item1.setCustomerId(2);
+        item1.setProductId((int) randomProducts.get(0).getProductId());
+        item1.setQuantity(999999);
+        CartItems item1Result = cartItemsRepository.save(item1);
+
+        CartItems item2 = new CartItems();
+        item2.setCartId(shoppingCart.getCartId());
+        item2.setCustomerId(2);
+        item2.setProductId((int) randomProducts.get(1).getProductId());
+        item2.setQuantity(1);
+        CartItems item2Result = cartItemsRepository.save(item2);
+
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/order/add/" + shoppingCart.getCartId()).contentType(APPLICATION_JSON_UTF8)
+                .session(session);
+
+        Exception e = assertThrows(NestedServletException.class, () ->
+                this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
+                        .andExpect(MockMvcResultMatchers.status().is4xxClientError()));
+        assertEquals(NotEnoughProductQuantityException.class, e.getCause().getClass());
+
+        cartItemsRepository.deleteById(item1Result.getId());
+        cartItemsRepository.deleteById(item2Result.getId());
+        purchasedItemsRepository.deleteByCartId(shoppingCart.getCartId());
+        cartRepository.deleteByCartId(shoppingCart.getCartId());
+    }
+
+    @Test
+    @Order(10)
+    public void purchaseItemsCartItemNotFoundExceptionTest() throws Exception
+    {
+        session = new MockHttpSession();
+
+        ResultActions auth = mvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType(APPLICATION_JSON_UTF8)
+                .content("{\"email\": \"testuser@gmail.com\", \"password\": \"password\", \"role\": \"User\"}")
+                .session(session));
+
+        MvcResult mvcResult = auth.andReturn();
+
+        session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        // Create a cart for customer_id 2.
+        Cart cart = new Cart();
+        cart.setCustomerId(2);
+        cart.setPurchased(false);
+        Cart shoppingCart = cartRepository.save(cart);
+
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/order/add/" + shoppingCart.getCartId()).contentType(APPLICATION_JSON_UTF8)
+                .session(session);
+
+        Exception e = assertThrows(NestedServletException.class, () ->
+                this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
+                        .andExpect(MockMvcResultMatchers.status().is4xxClientError()));
+        assertEquals(CartItemNotFoundException.class, e.getCause().getClass());
+
+        // Cleanup
+        cartRepository.deleteByCartId(shoppingCart.getCartId());
+
+    }
 
 }
