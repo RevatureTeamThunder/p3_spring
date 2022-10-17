@@ -33,6 +33,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query(value = "select * from product order by random() limit 2", nativeQuery = true)
     List<Product> getTwoRandom();
 
+    @Query(value = "select * from product where review_count > 0 order by random() limit 2", nativeQuery = true)
+    List<Product> getTwoRandomWithReviews();
+
+    @Query(value = "select * from product where review_count > :reviewCount limit 1", nativeQuery = true)
+    Product findByReviewCountGreaterThan(int reviewCount);
+
     public Optional<Product> findByProductId(long productId);
 
     public boolean existsByProductId(long productId);

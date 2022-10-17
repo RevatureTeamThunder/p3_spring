@@ -10,6 +10,8 @@ import com.revature.models.ProductReview;
 import com.revature.repositories.ProductRepository;
 import com.revature.repositories.ProductReviewRepository;
 import com.revature.repositories.ProductReviewViewRepository;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,8 +135,8 @@ class ReviewControllerTest
     void getProductReviewsByProductIdTest() throws Exception
     {
 
-        List<Product> productList = productRepository.getTwoRandom();
-        int productId = (int) productList.get(0).getProductId();
+        Product productList = productRepository.findByReviewCountGreaterThan(0);
+        int productId = (int) productList.getProductId();
 
         RequestBuilder getOrderRequest = MockMvcRequestBuilders.get("/api/review/view/" + productId).session(session);
 
@@ -208,7 +210,8 @@ class ReviewControllerTest
         ProductReview productReview1 = new ObjectMapper().readValue(reviewString.getContentAsString(), ProductReview.class);
 
         assertEquals(5, productReview1.getRating());
-        productReviewRepository.deleteByReviewId(newReview.getReviewId());
+      //  productReviewRepository.deleteByReviewId(newReview.getReviewId());
+        productReviewRepository.delete_rating(productReview.getProductId(), 1, 0, "delete");
 
     }
 
@@ -271,7 +274,7 @@ class ReviewControllerTest
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
     }
 
-    //@Test
+    @Test
     @Order(13)
     void deleteReviewNoPermissionTest()
     {
@@ -289,13 +292,54 @@ class ReviewControllerTest
         Exception e = assertThrows(NestedServletException.class, () ->
                 this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
                         .andExpect(MockMvcResultMatchers.status().is5xxServerError()));
-        assertEquals(ProductReviewNotFoundException.class, e.getCause().getClass());
+        assertEquals(NoPermissionException.class, e.getCause().getClass());
     }
 
     @Test
     @Order(14)
-    void AddReviewTest()
+    void AddReviewTest() throws Exception
     {
+        List<Product> productList = productRepository.getTwoRandom();
+        JSONObject productReviewJSON = new JSONObject();
+        productReviewJSON.put("product_id", productList.get(0).getProductId());
+        productReviewJSON.put("customer_id", 1);
+        productReviewJSON.put("rating", 5);
+        productReviewJSON.put("comment", "Test");
 
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/review/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(productReviewJSON.toString()).session(session);
+
+        ResultActions resultActions = this.mvc.perform(getOrderRequest)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        MvcResult result = resultActions.andReturn();
+
+        MockHttpServletResponse reviewString = result.getResponse();
+        ProductReview productReview1 = new ObjectMapper().readValue(reviewString.getContentAsString(), ProductReview.class);
+
+        assertEquals(5, productReview1.getRating());
+        productReviewRepository.deleteByReviewId(productReview1.getReviewId());
+    }
+
+    @Test
+    @Order(15)
+    void AddReviewProductNotFoundTest() throws Exception
+    {
+        JSONObject productReviewJSON = new JSONObject();
+        productReviewJSON.put("product_id", -1);
+        productReviewJSON.put("customer_id", 1);
+        productReviewJSON.put("rating", 5);
+        productReviewJSON.put("comment", "Test");
+
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/review/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(productReviewJSON.toString()).session(session);
+
+        Exception e = assertThrows(NestedServletException.class, () ->
+                this.mvc.perform(getOrderRequest).andDo(MockMvcResultHandlers.print())
+                        .andExpect(MockMvcResultMatchers.status().is5xxServerError()));
+        assertEquals(ProductNotFoundException.class, e.getCause().getClass());
     }
 }
