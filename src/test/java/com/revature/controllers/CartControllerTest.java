@@ -6,6 +6,7 @@ import com.revature.exceptions.ProductNotFoundException;
 import com.revature.models.Cart;
 import com.revature.models.CartItems;
 import com.revature.models.Product;
+import com.revature.models.ProductReview;
 import com.revature.repositories.CartItemsRepository;
 import com.revature.repositories.CartRepository;
 import com.revature.repositories.ProductRepository;
@@ -539,6 +540,43 @@ public class CartControllerTest
                         .andExpect(MockMvcResultMatchers.status().is5xxServerError()));
         assertEquals(ProductNotFoundException.class, e.getCause().getClass());
 
+        cartItemsRepository.deleteById(newItem.getId());
+    }
+
+    @Test
+    @Order(21)
+    void updateItemQuantityTest() throws Exception
+    {
+        session = new MockHttpSession();
+
+        ResultActions auth = mvc.perform(MockMvcRequestBuilders.post("/auth/login").contentType(APPLICATION_JSON_UTF8)
+                .content("{\"email\": \"testuser@gmail.com\", \"password\": \"password\", \"role\": \"User\"}")
+                .session(session));
+
+        MvcResult mvcResult = auth.andReturn();
+
+        session = (MockHttpSession) mvcResult.getRequest().getSession();
+
+        CartItems cartItems = new CartItems();
+        cartItems.setQuantity(1);
+        cartItems.setProductId(32);
+        cartItems.setCustomerId(2);
+        cartItems.setCartId(4L);
+        CartItems newItem = cartItemsRepository.save(cartItems);
+
+
+        RequestBuilder getOrderRequest = MockMvcRequestBuilders.put("/api/cart/4/update?product_id=32&quantity=2")
+                .session(session);
+
+        ResultActions resultActions = this.mvc.perform(getOrderRequest)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        MvcResult result = resultActions.andReturn();
+
+        MockHttpServletResponse cartString = result.getResponse();
+        CartItems cartItems1 = new ObjectMapper().readValue(cartString.getContentAsString(), CartItems.class);
+        assertEquals(2, cartItems1.getQuantity());
         cartItemsRepository.deleteById(newItem.getId());
     }
 }
