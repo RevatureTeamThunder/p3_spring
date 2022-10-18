@@ -65,11 +65,6 @@ public class CartController
         Optional<Cart> cart = cartRepository.findByCustomerId(customerId);
         if(cart.isPresent())
         {
-
-            if(cart.get().getCustomerId() != customerId)
-            {
-                throw new NoPermissionException();
-            }
             return ResponseEntity.ok(cart.get());
         }
         throw new CartNotFoundException();
@@ -81,31 +76,9 @@ public class CartController
             @RequestParam(name = "customer_id") int customer_id
     ) throws CartNotFoundException
     {
-        // JSONObject shoppingCart = new JSONObject();
         Optional<List<ReviewCart>> reviewCartList = reviewCartRepository.findAllByCustomerId(customer_id);
         if(reviewCartList.isPresent())
         {
-
-            /*
-            BigDecimal cart_total = BigDecimal.valueOf(0);
-            int x = 0;
-            JSONArray arr = new JSONArray();
-            for(ReviewCart rc : reviewCartList.get())
-            {
-                JSONObject obj = new JSONObject();
-                obj.put("id", rc.getId());
-                obj.put("product_id", rc.getProductId());
-                obj.put("customer_id", rc.getCustomerId());
-                obj.put("name", rc.getName());
-                obj.put("quantity", rc.getQuantity());
-                obj.put("price", rc.getPrice());
-                obj.put("total_cost", rc.getTotalCost());
-                cart_total = rc.getTotalCost().add(cart_total);
-                arr.put(obj);
-                ++x;
-            }
-             */
-
             if(reviewCartList.get().size() == 0)
             {
                 throw new CartNotFoundException();
@@ -133,10 +106,14 @@ public class CartController
             @PathVariable("id") long cartId,
             @RequestParam(name = "product_id") int productId,
             @RequestParam(name = "quantity", defaultValue = "1") int quantity
-    ) throws CartNotFoundException
+    ) throws CartNotFoundException, ProductNotFoundException
     {
 
         Optional<Cart> cart = cartRepository.findByCartId(cartId);
+        if(!productRepository.exists(productId).isPresent())
+        {
+            throw new ProductNotFoundException();
+        }
         if(cart.isPresent())
         {
             CartItems cartItems = new CartItems();
@@ -159,6 +136,10 @@ public class CartController
         Optional<List<CartItems>> cartItemsList = cartItemsRepository.findAllByCartId(cartId);
         if(cartItemsList.isPresent())
         {
+            if(cartItemsList.get().size() == 0)
+            {
+                throw new CartNotFoundException();
+            }
             if(!productRepository.existsByProductId(productId))
             {
                 throw new ProductNotFoundException();

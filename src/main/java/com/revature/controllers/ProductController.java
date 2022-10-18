@@ -66,6 +66,10 @@ public class ProductController {
         }
         if(productList.isPresent())
         {
+            if(productList.get().size() == 0)
+            {
+                throw new ProductNotFoundException();
+            }
             return ResponseEntity.ok(productList);
         }
         throw new ProductNotFoundException();
