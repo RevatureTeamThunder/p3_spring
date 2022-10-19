@@ -7,6 +7,7 @@ Products are able to be searched and the results can be sorted by name, price, c
 
 Purchase history is maintained for each customer so they can see what items they have purchased before. There are validation checks on the server side for making sure the product exists and that the customer is valid.
 
+Purchasing items and leaving products reviews are done using stored procedures to ensure consistent behavior.
 
 ## Software Required
 - Java 8
