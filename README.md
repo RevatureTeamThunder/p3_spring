@@ -29,5 +29,5 @@ Purchase history is maintained for each customer so they can see what items they
 
 
 ## Diagrams
-[ERD](documentation/erd.png)
-[Data Flow Diagram](documentation/data_flow_diagram.vsdx)
+- [ERD](documentation/erd.png)
+- [Data Flow Diagram](documentation/data_flow_diagram.vsdx)
